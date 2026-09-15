@@ -1,0 +1,40 @@
+{
+  "name": "docuchat",
+  "version": "1.0.0",
+  "description": "TypeScript Express application with Prisma ORM",
+  "main": "dist/server.js",
+  "scripts": {
+    "dev": "npm run prisma:generate && npm run db:push && tsx watch src/server.ts",
+    "build": "npm run prisma:generate && tsc",
+    "start": "npm run prisma:generate && npm run db:push && tsx src/server.ts",
+    "serve": "node dist/server.js",
+    "prisma:generate": "prisma generate",
+    "db:push": "prisma db push",
+    "test": "echo \"No test suite configured\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "http://localhost:26831/alevel7/docuChat"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@prisma/client": "^6.12.0",
+    "express": "^5.2.1"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/node": "^26.6.0",
+    "prisma": "^6.12.0",
+    "tsx": "^4.23.13",
+    "typescript": "^7.0.2"
+  },
+  "allowScripts": {
+    "@prisma/client@6.12.0": true,
+    "@prisma/engines@6.12.0": true,
+    "prisma@6.12.0": true,
+    "esbuild@0.28.2": true
+  }
+}
