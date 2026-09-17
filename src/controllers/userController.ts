@@ -1,6 +1,7 @@
 import type { Request, Response, NextFunction } from "express";
 
 import { UserService } from "../services/userService";
+import { UpdateUserBodyType } from "../schemas/user.schema";
 
 export class UserController {
   constructor(private readonly userService: UserService = new UserService()) {}
@@ -14,14 +15,13 @@ export class UserController {
     }
   };
 
-  createUser = async (request: Request, response: Response, next: NextFunction): Promise<void> => {
+  updateUser = async (request: Request, response: Response, next: NextFunction): Promise<void> => {
     try {
-      const { firstName, lastName, email, password } = request.body as { firstName?: string; lastName?: string; email?: string; password?: string };
-      const user = await this.userService.createUser({
+      const userId = Number(request.params.userId);
+      const { firstName, lastName } = request.body as UpdateUserBodyType;
+      const user = await this.userService.updateUser(userId, {
         firstName: firstName ?? "",
         lastName: lastName ?? "",
-        email: email ?? "",
-        password: password ?? "",
       });
 
       response.status(201).json({ data: user });

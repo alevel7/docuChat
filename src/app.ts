@@ -3,6 +3,7 @@ import express from "express";
 import { errorHandler } from "./middlewares/errorHandler";
 import { notFoundHandler } from "./middlewares/notFoundHandler";
 import { userRouter } from "./routes/userRoutes";
+import { appEvents } from "./lib/events";
 
 export const app = express();
 
