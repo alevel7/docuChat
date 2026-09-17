@@ -1,11 +1,7 @@
 import type { User } from "@prisma/client";
 
-import { prisma } from "../config/database";
-
-export type CreateUserInput = {
-  name: string;
-  email: string;
-};
+import prisma  from "../config/database"
+import { UserCreateInput } from "../generated/prisma/models/User";
 
 export class UserRepository {
   async findAll(): Promise<User[]> {
@@ -20,7 +16,7 @@ export class UserRepository {
     });
   }
 
-  async create(data: CreateUserInput): Promise<User> {
+  async create(data: UserCreateInput): Promise<User> {
     return prisma.user.create({
       data,
     });

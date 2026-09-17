@@ -1,6 +1,7 @@
 import type { User } from "@prisma/client";
 
-import { UserRepository, type CreateUserInput } from "../repositories/userRepository";
+import { UserRepository } from "../repositories/userRepository";
+import { UserCreateInput } from "../generated/prisma/models/User";
 
 export class UserService {
   constructor(private readonly userRepository: UserRepository = new UserRepository()) {}
@@ -9,11 +10,13 @@ export class UserService {
     return this.userRepository.findAll();
   }
 
-  async createUser(data: CreateUserInput): Promise<User> {
-    const name = data.name.trim();
+  async createUser(data: UserCreateInput): Promise<User> {
+    const firstName = data.firstName.trim();
+    const lastName = data.lastName.trim();
+    const n = firstName + " " + lastName;
     const email = data.email.trim().toLowerCase();
 
-    if (!name || !email) {
+    if (!n || !email) {
       const error = new Error("Name and email are required.") as Error & { statusCode?: number };
       error.statusCode = 400;
       throw error;
@@ -27,6 +30,6 @@ export class UserService {
       throw error;
     }
 
-    return this.userRepository.create({ name, email });
+    return this.userRepository.create({ firstName, lastName, email, password: data.password });
   }
 }

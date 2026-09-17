@@ -16,10 +16,12 @@ export class UserController {
 
   createUser = async (request: Request, response: Response, next: NextFunction): Promise<void> => {
     try {
-      const { name, email } = request.body as { name?: string; email?: string };
+      const { firstName, lastName, email, password } = request.body as { firstName?: string; lastName?: string; email?: string; password?: string };
       const user = await this.userService.createUser({
-        name: name ?? "",
+        firstName: firstName ?? "",
+        lastName: lastName ?? "",
         email: email ?? "",
+        password: password ?? "",
       });
 
       response.status(201).json({ data: user });
