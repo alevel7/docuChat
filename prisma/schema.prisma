@@ -15,17 +15,23 @@ datasource db {
 
 // add user schema
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
+  id        String    @id @default(uuid())
+  email     String    @unique
   firstName String
   lastName  String
   password  String
-  isActive  Boolean  @default(true)
-  tier      String   @default("free")
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  role      String    @default("user")
+  isActive  Boolean   @default(true)
+  tier      String    @default("free")
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
 
+  // documents Document[]
+  // conversations Conversation[]
   refreshTokens RefreshToken[]
+
+  @@index([email])
 }
 
 model RefreshToken {

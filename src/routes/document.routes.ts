@@ -10,8 +10,8 @@ router.get('/health', (req, res) => res.json({ status: 'ok' }));
 // Protected route - requires valid access token
 router.get('/documents', authenticate, async (req, res) => {
     // req.user is guaranteed to exist here
-    const docs = await prisma.document.findMany({
-        where: { userId: req.user!.id },
-    });
-    res.json(docs);
+    // const docs = await prisma.document.findMany({
+    //     where: { userId: req.user!.id },
+    // });
+    // res.json(docs);
 });

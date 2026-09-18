@@ -4,7 +4,7 @@ import { UserRepository } from "../repositories/userRepository";
 import { UserCreateInput } from "../generated/prisma/models/User";
 import { CustomException } from "../middlewares/errorHandler";
 import { StatusCodes } from "http-status-codes";
-import { UpdateUserBodyType } from "../schemas/user.schema";
+import { UpdateUserBodyType } from "../validators/user.validator";
 
 
 const listUsers = async (): Promise<User[]> => {

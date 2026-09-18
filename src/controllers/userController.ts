@@ -1,5 +1,5 @@
 import type { Request, Response, NextFunction } from "express";
-import { UpdateUserBodyType } from "../schemas/user.schema";
+import { UpdateUserBodyType } from "../validators/user.validator";
 import UserService from "../services/userService";
 
 export const UserController  = {

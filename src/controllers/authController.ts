@@ -1,5 +1,5 @@
 import type { Request, Response, NextFunction } from "express";
-import { LoginUserBodyType } from "../schemas/user.schema";
+import { LoginUserBodyType } from "../validators/user.validator";
 import { LoginResponse } from "../models/auth.models";
 import AuthService, { logout } from "../services/auth.service";
 import UserService from "../services/userService";

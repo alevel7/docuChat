@@ -2,7 +2,7 @@ import { Router } from "express";
 
 import { UserController } from "../controllers/userController";
 import { validate } from "../middlewares/validate";
-import { createUserSchema, loginUserSchema } from "../schemas/user.schema";
+import { createUserSchema, loginUserSchema } from "../validators/user.validator";
 import { AuthController } from "../controllers/authController";
 
 

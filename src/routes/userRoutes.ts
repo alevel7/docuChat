@@ -2,10 +2,9 @@ import { Router } from "express";
 
 import { UserController } from "../controllers/userController";
 import { validate } from "../middlewares/validate";
-import { createUserSchema, updateUserSchema } from "../schemas/user.schema";
 import { authenticate } from "../middlewares/auth.middleware";
 import { authorize } from "../middlewares/authorize.middleware";
-import { deleteUser } from "../services/userService";
+import { updateUserSchema } from "../validators/user.validator";
 
 export const userRouter = Router();
 
