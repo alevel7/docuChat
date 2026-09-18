@@ -21,7 +21,7 @@ export const updateUserSchema = z.object({
         lastName: z.string().min(1, "Last name must be at least 1 characters").optional(),
     }),
     params: z.object({
-        userId: z.number().int("Invalid user ID format"), // Validates integer format
+        userId: z.string('Invalid user id')
     }),
 });
 

@@ -6,44 +6,62 @@ import { CustomException } from "../middlewares/errorHandler";
 import { StatusCodes } from "http-status-codes";
 import { UpdateUserBodyType } from "../schemas/user.schema";
 
-export class UserService {
-  constructor(private readonly userRepository: UserRepository = new UserRepository()) {}
 
-  async listUsers(): Promise<User[]> {
-    return this.userRepository.findAll();
+const listUsers = async (): Promise<User[]> => {
+  return await UserRepository.findAll();
+};
+
+const getUserByEmail = async (email: string): Promise<User | null> => {
+  return await UserRepository.findByEmail(email);
+};
+
+const createUser = async (data: UserCreateInput): Promise<User> => {
+  const firstName = data.firstName.trim();
+  const lastName = data.lastName.trim();
+  const n = firstName + " " + lastName;
+  const email = data.email.trim().toLowerCase();
+
+  if (!n || !email) {
+    throw new CustomException("Name and email are required.", StatusCodes.BAD_REQUEST);
   }
 
-  async getUserByEmail(email: string): Promise<User | null> {
-    return this.userRepository.findByEmail(email);
+  const existingUser = await UserRepository.findByEmail(email);
+
+  if (existingUser) {
+    throw new CustomException("A user with this email already exists.", StatusCodes.CONFLICT);
   }
 
-  async createUser(data: UserCreateInput): Promise<User> {
-    const firstName = data.firstName.trim();
-    const lastName = data.lastName.trim();
-    const n = firstName + " " + lastName;
-    const email = data.email.trim().toLowerCase();
+  return await UserRepository.create({ firstName, lastName, email, password: data.password });
+};
 
-    if (!n || !email) {
-      throw new CustomException("Name and email are required.", StatusCodes.BAD_REQUEST);
-    }
+const updateUser = async (userId: string, data: UpdateUserBodyType): Promise<User> => {
+  const firstName = data?.firstName?.trim();
+  const lastName = data?.lastName?.trim();
 
-    const existingUser = await this.userRepository.findByEmail(email);
-
-    if (existingUser) {
-      throw new CustomException("A user with this email already exists.", StatusCodes.CONFLICT);
-    }
-
-    return this.userRepository.create({ firstName, lastName, email, password: data.password });
+  if (!firstName || !lastName) {
+    throw new CustomException("First name and last name are required.", StatusCodes.BAD_REQUEST);
   }
 
-  async updateUser(userId: number, data: UpdateUserBodyType): Promise<User> {
-    const firstName = data?.firstName?.trim();
-    const lastName = data?.lastName?.trim();
+  return await UserRepository.update(userId, { firstName, lastName });
+};
 
-    if (!firstName || !lastName) {
-      throw new CustomException("First name and last name are required.", StatusCodes.BAD_REQUEST);
-    }
 
-    return this.userRepository.update(userId, { firstName, lastName });
+const deleteUser = async (userId: string): Promise<void> => {
+  const user = await UserRepository.findById(userId);
+
+  if (!user) {
+    throw new CustomException("User not found.", StatusCodes.NOT_FOUND);
   }
+
+  await UserRepository.delete(userId);
 }
+
+const UserService = {
+  listUsers,
+  getUserByEmail,
+  createUser,
+  updateUser,
+  deleteUser
+}
+
+export default UserService;

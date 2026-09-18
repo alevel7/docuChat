@@ -1,30 +1,25 @@
 import type { Request, Response, NextFunction } from "express";
-
-import { UserService } from "../services/userService";
-import { AuthService } from "../services/auth.service";
 import { LoginUserBodyType } from "../schemas/user.schema";
 import { LoginResponse } from "../models/auth.models";
+import AuthService, { logout } from "../services/auth.service";
+import UserService from "../services/userService";
 
-export class AuthController {
-    constructor(
-        private readonly userService: UserService = new UserService(),
-        private readonly authService: AuthService = new AuthService(),
-    ) { }
+export const AuthController  = {
 
-    async registerUser(request: Request, response: Response, next: NextFunction): Promise<void> {
+    registerUser: async (request: Request, response: Response, next: NextFunction): Promise<void> => {
         try {
-            const users = await this.authService.registerUser(request.body);
+            const users = await AuthService.registerUser(request.body);
             response.status(200).json({ data: users });
         } catch (error) {
             next(error);
         }
-    };
+    },
 
-    async loginUser(request: Request, response: Response, next: NextFunction): Promise<void> {
+    loginUser: async (request: Request, response: Response, next: NextFunction): Promise<void> => {
         try {
             const { email, password } = request.body as LoginUserBodyType;
 
-            const loginDetails = await this.authService.login({
+            const loginDetails = await AuthService.login({
                 email: email ?? "",
                 password: password ?? "",
             });
@@ -33,5 +28,25 @@ export class AuthController {
         } catch (error) {
             next(error);
         }
-    };
+    },
+
+    refreshToken: async (request: Request, response: Response, next: NextFunction): Promise<void> => {
+        try {
+            const { refreshToken } = request.body;
+            const tokens = await AuthService.refresh(refreshToken);
+            response.status(200).json({ data: tokens });
+        } catch (error) {
+            next(error);
+        }
+    },
+
+    logout: async (request: Request, response: Response, next: NextFunction): Promise<void> => {
+        try {
+            const { refreshToken } = request.body;
+            await AuthService.logout(refreshToken);
+            response.status(200).json({ message: "Logged out successfully" });
+        } catch (error) {
+            next(error);
+        }
+    }
 }

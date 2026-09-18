@@ -1,25 +1,22 @@
 import type { Request, Response, NextFunction } from "express";
-
-import { UserService } from "../services/userService";
 import { UpdateUserBodyType } from "../schemas/user.schema";
+import UserService from "../services/userService";
 
-export class UserController {
-  constructor(private readonly userService: UserService = new UserService()) {}
-
-  listUsers = async (_request: Request, response: Response, next: NextFunction): Promise<void> => {
+export const UserController  = {
+  listUsers: async (_request: Request, response: Response, next: NextFunction): Promise<void> => {
     try {
-      const users = await this.userService.listUsers();
+      const users = await UserService.listUsers();
       response.status(200).json({ data: users });
     } catch (error) {
       next(error);
     }
-  };
+  },
 
-  updateUser = async (request: Request, response: Response, next: NextFunction): Promise<void> => {
+  updateUser: async (request: Request, response: Response, next: NextFunction): Promise<void> => {
     try {
-      const userId = Number(request.params.userId);
+      const userId = String(request.params.userId);
       const { firstName, lastName } = request.body as UpdateUserBodyType;
-      const user = await this.userService.updateUser(userId, {
+      const user = await UserService.updateUser(userId, {
         firstName: firstName ?? "",
         lastName: lastName ?? "",
       });
@@ -28,5 +25,15 @@ export class UserController {
     } catch (error) {
       next(error);
     }
-  };
+  },
+
+  deleteUser: async (request: Request, response: Response, next: NextFunction): Promise<void> => {
+    try {
+      const userId = String(request.params.userId);
+      await UserService.deleteUser(userId);
+      response.status(204).send();
+    } catch (error) {
+      next(error);
+    }
+  }
 }

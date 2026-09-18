@@ -3,29 +3,49 @@ import type { User } from "@prisma/client";
 import prisma  from "../config/database"
 import { UserCreateInput } from "../generated/prisma/models/User";
 
-export class UserRepository {
-  async findAll(): Promise<User[]> {
+interface UserRepositoryInterface {
+  findAll: () => Promise<User[]>;
+  findByEmail: (email: string) => Promise<User | null>;
+  findById: (userId: string) => Promise<User | null>;
+  create: (data: UserCreateInput) => Promise<User>;
+  update: (userId: string, data: { firstName: string; lastName: string }) => Promise<User>;
+  delete: (userId: string) => Promise<void>;
+}
+
+export const UserRepository: UserRepositoryInterface = {
+  findAll: async (): Promise<User[]> => {
     return prisma.user.findMany({
       orderBy: { createdAt: "asc" },
     });
-  }
+  },
 
-  async findByEmail(email: string): Promise<User | null> {
+  findByEmail: async (email: string): Promise<User | null> => {
     return prisma.user.findUnique({
       where: { email: email.toLowerCase().trim() },
     });
-  }
+  },
 
-  async create(data: UserCreateInput): Promise<User> {
+  findById: async (userId: string): Promise<User | null> => {
+    return prisma.user.findUnique({
+      where: { id: userId },
+    });
+  },
+
+  create: async (data: UserCreateInput): Promise<User> => {
     return prisma.user.create({
       data,
     });
-  }
+  },
 
-  async update(userId: number, data: { firstName: string; lastName: string }): Promise<User> {
+  update: async (userId: string, data: { firstName: string; lastName: string }): Promise<User> => {
     return prisma.user.update({
       where: { id: userId },
       data,
+    });
+  },
+  delete: async (userId: string): Promise<void> => {
+    await prisma.user.delete({
+      where: { id: userId },
     });
   }
 }
