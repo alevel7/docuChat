@@ -49,3 +49,6 @@ export const UserRepository: UserRepositoryInterface = {
     });
   }
 }
+
+
+export default UserRepository;

@@ -12,7 +12,7 @@ import { LoginResponse, TokenPayload } from "../models/auth.models";
 import UserService from "./userService";
 
 
-const registerUser = async (data: UserCreateInput): Promise<{ id: string; email: string; tier: string }> => {
+export const registerUser = async (data: UserCreateInput): Promise<{ id: string; email: string; tier: string }> => {
 
     const passwordHash = await hashPassword(data.password);
 

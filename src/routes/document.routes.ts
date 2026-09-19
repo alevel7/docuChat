@@ -1,17 +1,29 @@
 import { Router } from 'express';
 import { authenticate } from '../middlewares/auth.middleware';
 import prisma from '../config/database';
+import { createDocumentSchema, documentParamsSchema, listDocumentsSchema } from '../validators/document.validator';
+import { validate } from '../middlewares/validate';
 
-const router = Router();
+export const documentRoutes = Router();
+documentRoutes.use(authenticate); // All document routes require auth
 
-// Public route - no auth needed
-router.get('/health', (req, res) => res.json({ status: 'ok' }));
+// documentRoutes.get('/',
+//     validate(listDocumentsSchema),
+//     listDocuments
+// );
 
-// Protected route - requires valid access token
-router.get('/documents', authenticate, async (req, res) => {
-    // req.user is guaranteed to exist here
-    // const docs = await prisma.document.findMany({
-    //     where: { userId: req.user!.id },
-    // });
-    // res.json(docs);
-});
+// documentRoutes.post('/',
+//     validate(createDocumentSchema),
+//     createDocument
+// );
+
+// documentRoutes.get('/:id',
+//     validate(documentParamsSchema),
+//     getDocument
+// );
+
+// documentRoutes.delete('/:id',
+//     validate(documentParamsSchema),
+//     deleteDocument
+// );
+
