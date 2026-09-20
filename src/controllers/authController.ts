@@ -1,15 +1,15 @@
 import type { Request, Response, NextFunction } from "express";
-import { LoginUserBodyType } from "../validators/user.validator";
 import { LoginResponse } from "../models/auth.models";
 import AuthService, { logout } from "../services/auth.service";
-import UserService from "../services/userService";
+import { LoginUserBodyType } from "../validators/auth.validator";
+import { StatusCodes } from "http-status-codes";
 
 export const AuthController  = {
 
     registerUser: async (request: Request, response: Response, next: NextFunction): Promise<void> => {
         try {
             const users = await AuthService.registerUser(request.body);
-            response.status(200).json({ data: users });
+            response.status(StatusCodes.CREATED).json({ data: users });
         } catch (error) {
             next(error);
         }
@@ -24,7 +24,7 @@ export const AuthController  = {
                 password: password ?? "",
             });
 
-            response.status(201).json({ data: loginDetails });
+            response.status(StatusCodes.OK).json({ data: loginDetails });
         } catch (error) {
             next(error);
         }
@@ -34,7 +34,7 @@ export const AuthController  = {
         try {
             const { refreshToken } = request.body;
             const tokens = await AuthService.refresh(refreshToken);
-            response.status(200).json({ data: tokens });
+            response.status(StatusCodes.OK).json({ data: tokens });
         } catch (error) {
             next(error);
         }
@@ -44,7 +44,7 @@ export const AuthController  = {
         try {
             const { refreshToken } = request.body;
             await AuthService.logout(refreshToken);
-            response.status(200).json({ message: "Logged out successfully" });
+            response.status(StatusCodes.OK).json({ message: "Logged out successfully" });
         } catch (error) {
             next(error);
         }

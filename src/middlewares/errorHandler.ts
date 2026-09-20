@@ -7,7 +7,6 @@ export const errorHandler = (
   response: Response,
   _next: NextFunction,
 ): void => {
-  console.error("Error occurred:", error);
   const statusCode = error.statusCode ?? 500;
   const message = statusCode === 500 ? "Internal server error." : error.message;
 

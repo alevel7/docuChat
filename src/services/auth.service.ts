@@ -10,6 +10,8 @@ import crypto from 'crypto';
 import { UserCreateInput } from "../generated/prisma/models";
 import { LoginResponse, TokenPayload } from "../models/auth.models";
 import UserService from "./userService";
+import { CustomException } from "../middlewares/errorHandler";
+import { StatusCodes } from "http-status-codes";
 
 
 export const registerUser = async (data: UserCreateInput): Promise<{ id: string; email: string; tier: string }> => {
@@ -37,12 +39,12 @@ export const login = async (data: {
     // Same error for "user not found" and "wrong password"
     // This prevents user enumeration attacks
     if (!user || !user.isActive) {
-        throw new Error('Invalid credentials');
+        throw new CustomException('Invalid credentials', StatusCodes.UNAUTHORIZED);
     }
 
     const valid = await verifyPassword(data.password, user.password);
     if (!valid) {
-        throw new Error('Invalid credentials');
+        throw new CustomException('Invalid credentials', StatusCodes.UNAUTHORIZED);
     }
 
     // Generate tokens
