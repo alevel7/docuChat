@@ -16,19 +16,19 @@ export const AUTH_EVENTS = {
 // Listener 1: Log signups for analytics
 appEvents.on(AUTH_EVENTS.USER_REGISTERED, async (user) => {
     try {
-        // await prisma.usageLog.create({
-        //     data: {
-        //         userId: user.id,
-        //         action: 'signup',
-        //         tokens: 0,
-        //         costUsd: 0,
-        //         metadata: JSON.stringify({
-        //             email: user.email,
-        //             tier: user.tier,
-        //             registeredAt: new Date().toISOString(),
-        //         }),
-        //     },
-        // });
+        await prisma.usageLog.create({
+            data: {
+                userId: user.id,
+                action: 'signup',
+                tokensUsed: 0,
+                costUsd: 0,
+                metadata: JSON.stringify({
+                    email: user.email,
+                    tier: user.tier,
+                    registeredAt: new Date().toISOString(),
+                }),
+            },
+        });
     } catch (error) {
         // Log but don't crash. This is a side effect.
         console.error('Failed to log signup:', error);
@@ -52,18 +52,18 @@ appEvents.on(AUTH_EVENTS.USER_REGISTERED, async (user) => {
 // Listener 3: Log login events (useful for security audits)
 appEvents.on(AUTH_EVENTS.USER_LOGGED_IN, async (data) => {
     try {
-        // await prisma.usageLog.create({
-        //     data: {
-        //         userId: data.userId,
-        //         action: 'login',
-        //         tokens: 0,
-        //         costUsd: 0,
-        //         metadata: JSON.stringify({
-        //             deviceInfo: data.deviceInfo,
-        //             loginAt: new Date().toISOString(),
-        //         }),
-        //     },
-        // });
+        await prisma.usageLog.create({
+            data: {
+                userId: data.userId,
+                action: 'login',
+                tokensUsed: 0,
+                costUsd: 0,
+                metadata: JSON.stringify({
+                    deviceInfo: data.deviceInfo,
+                    loginAt: new Date().toISOString(),
+                }),
+            },
+        });
     } catch (error) {
         console.error('Failed to log login:', error);
     }

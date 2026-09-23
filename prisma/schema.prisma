@@ -27,23 +27,23 @@ model User {
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
-  documents Document[]
+  documents     Document[]
   // conversations Conversation[]
   refreshTokens RefreshToken[]
-  roles  UserRole[]
-
+  roles         UserRole[]
+  usageLogs     UsageLog[]
 
   @@index([email])
 }
 
 model Document {
-  id          String   @id @default(uuid())
-  title       String
-  content     String
-  ownerId     String
-  owner       User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id        String   @id @default(uuid())
+  title     String
+  content   String
+  ownerId   String
+  owner     User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([ownerId])
 }
@@ -61,12 +61,11 @@ model RefreshToken {
   @@index([expiresAt])
 }
 
-
 model Role {
   id          String   @id @default(uuid())
-  name        String   @unique   // 'admin', 'member', 'viewer'
+  name        String   @unique // 'admin', 'member', 'viewer'
   description String?
-  isDefault   Boolean  @default(false)  // New users get this role
+  isDefault   Boolean  @default(false) // New users get this role
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -76,25 +75,25 @@ model Role {
 
 model Permission {
   id          String   @id @default(uuid())
-  name        String   @unique   // 'documents:create'
+  name        String   @unique // 'documents:create'
   description String?
-  resource    String              // 'documents'
-  action      String              // 'create'
+  resource    String // 'documents'
+  action      String // 'create'
   createdAt   DateTime @default(now())
 
-  roles       RolePermission[]
+  roles RolePermission[]
 
   @@unique([resource, action])
 }
 
 model UserRole {
-  userId    String
-  roleId    String
+  userId     String
+  roleId     String
   assignedAt DateTime @default(now())
-  assignedBy String?  // Who assigned this role (for audit)
+  assignedBy String? // Who assigned this role (for audit)
 
-  user      User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  role      Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
 
   @@id([userId, roleId])
 }
@@ -107,4 +106,19 @@ model RolePermission {
   permission Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
 
   @@id([roleId, permissionId])
+}
+
+model UsageLog {
+  id         String   @id @default(uuid())
+  userId     String
+  tokensUsed Int
+  costUsd    Float
+  action     String // e.g., 'document:created'
+  metadata   String? // JSON string with additional details
+  createdAt  DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([action])
 }
