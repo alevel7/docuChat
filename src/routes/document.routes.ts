@@ -1,29 +1,38 @@
 import { Router } from 'express';
 import { authenticate } from '../middlewares/auth.middleware';
-import prisma from '../config/database';
 import { createDocumentSchema, documentParamsSchema, listDocumentsSchema } from '../validators/document.validator';
 import { validate } from '../middlewares/validate';
+import { requirePermission } from '../middlewares/authorize.middleware';
+import { DocumentController } from '../controllers/documentController';
 
 export const documentRoutes = Router();
 documentRoutes.use(authenticate); // All document routes require auth
 
-// documentRoutes.get('/',
-//     validate(listDocumentsSchema),
-//     listDocuments
-// );
+// Anyone with documents:read can list documents
+documentRoutes.get('/',
+    requirePermission('documents:read'),
+    validate(listDocumentsSchema),
+    DocumentController.listDocuments
+);
 
-// documentRoutes.post('/',
-//     validate(createDocumentSchema),
-//     createDocument
-// );
+documentRoutes.get('/:id',
+    requirePermission('documents:read'), 
+    validate(documentParamsSchema),
+    DocumentController.getADocument
+);
 
-// documentRoutes.get('/:id',
-//     validate(documentParamsSchema),
-//     getDocument
-// );
+// // Only documents:create can upload
+documentRoutes.post('/',
+    requirePermission('documents:create'),
+    validate(createDocumentSchema),
+    DocumentController.createDocument
+);
 
-// documentRoutes.delete('/:id',
-//     validate(documentParamsSchema),
-//     deleteDocument
-// );
+// // Only documents:delete can delete (admin only)
+documentRoutes.delete('/:id',
+    requirePermission('admin:documents:delete', 'documents:delete'),
+    validate(documentParamsSchema),
+    DocumentController.deleteDocument
+);
 
+export default documentRoutes;

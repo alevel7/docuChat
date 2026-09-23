@@ -27,13 +27,25 @@ model User {
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
-  // documents Document[]
+  documents Document[]
   // conversations Conversation[]
   refreshTokens RefreshToken[]
   roles  UserRole[]
 
 
   @@index([email])
+}
+
+model Document {
+  id          String   @id @default(uuid())
+  title       String
+  content     String
+  ownerId     String
+  owner       User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([ownerId])
 }
 
 model RefreshToken {
