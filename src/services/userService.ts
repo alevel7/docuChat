@@ -5,6 +5,9 @@ import { UserCreateInput } from "../generated/prisma/models/User";
 import { CustomException } from "../middlewares/errorHandler";
 import { StatusCodes } from "http-status-codes";
 import { UpdateUserBodyType } from "../validators/user.validator";
+import { RolePermissionRepository } from "../repositories/RolePermissionRepository";
+import { UserRoleRepository } from "../repositories/userRoleRepository";
+import prisma from "../config/database";
 
 
 const listUsers = async (): Promise<User[]> => {
@@ -31,7 +34,24 @@ const createUser = async (data: UserCreateInput): Promise<User> => {
     throw new CustomException("A user with this email already exists.", StatusCodes.CONFLICT);
   }
 
-  return await UserRepository.create({ firstName, lastName, email, password: data.password });
+  // Find the default role
+  const defaultRole = await RolePermissionRepository.findRole({
+    isDefault: true,
+  });
+
+  const newUser = await UserRepository.create({ firstName, lastName, email, password: data.password });
+
+  if (defaultRole) {
+    await prisma.userRole.create({
+      data: {
+        userId: newUser.id,
+        roleId: defaultRole.id,
+      },
+    });
+  }
+
+  
+  return newUser;
 };
 
 const updateUser = async (userId: string, data: UpdateUserBodyType): Promise<User> => {
