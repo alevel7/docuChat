@@ -40,10 +40,17 @@ model Document {
   id        String   @id @default(uuid())
   title     String
   content   String
+  filename  String
+  fileSizeBytes Int
+  status    String   @default("pending") // 'pending', 'processing', 'completed', 'failed'
+  error     String?
   ownerId   String
   owner     User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  deletedAt DateTime?
+  deletedById   String? 
 
   @@index([ownerId])
 }

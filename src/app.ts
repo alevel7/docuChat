@@ -3,8 +3,13 @@ import express from "express";
 import { errorHandler } from "./middlewares/errorHandler";
 import { notFoundHandler } from "./middlewares/notFoundHandler";
 import { userRouter } from "./routes/userRoutes";
+import { bullBoardAdapter } from './config/bull-board';
+
 import './events/admin.events';
 import './events/auth.events';
+import './events/document.events';
+import './queues/document.worker';
+
 import { authRouter } from "./routes/auth.routes";
 import {documentRoutes} from "./routes/document.routes";
 import adminRouter from "./routes/admin";
@@ -21,6 +26,7 @@ app.use("/api", userRouter);
 app.use("/api/auth", authRouter);
 app.use('/api/v1/documents', documentRoutes);
 app.use('/api/v1/admin', adminRouter);
+app.use('/admin/queues', bullBoardAdapter.getRouter());
 // app.use('/api/v1/conversations', auth, conversationRoutes);
 
 app.use(notFoundHandler);

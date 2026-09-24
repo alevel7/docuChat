@@ -35,4 +35,10 @@ documentRoutes.delete('/:id',
     DocumentController.deleteDocument
 );
 
+documentRoutes.get('/:id/processing-status',
+    authenticate,
+    requirePermission('documents:read'),
+    DocumentController.getProcessingStatus
+)
+
 export default documentRoutes;
