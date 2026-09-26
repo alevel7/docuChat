@@ -13,6 +13,9 @@ import './queues/document.worker';
 import { authRouter } from "./routes/auth.routes";
 import {documentRoutes} from "./routes/document.routes";
 import adminRouter from "./routes/admin";
+import { verifyWebhookSignature } from "./middlewares/verifyWebhook";
+
+const secret = process.env.WEBHOOK_SECRET as string;
 
 export const app = express();
 
@@ -21,6 +24,15 @@ app.use(express.json());
 app.get("/health", (_request, response) => {
   response.status(200).json({ status: "ok",timestamp: new Date().toISOString() });
 });
+
+app.use('/webhooks', verifyWebhookSignature(secret, "x-signature"), 
+express.raw({ 
+  type: 'application/json' ,
+  verify: (req: any, res, buf) => {
+    req.rawBody = buf;
+  },
+
+}));
 
 app.use("/api", userRouter);
 app.use("/api/auth", authRouter);
