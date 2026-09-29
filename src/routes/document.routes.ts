@@ -4,6 +4,7 @@ import { createDocumentSchema, documentParamsSchema, listDocumentsSchema } from 
 import { validate } from '../middlewares/validate';
 import { requirePermission } from '../middlewares/authorize.middleware';
 import { DocumentController } from '../controllers/documentController';
+import { conditionalGet } from '../middlewares/etag';
 
 export const documentRoutes = Router();
 documentRoutes.use(authenticate); // All document routes require auth
@@ -17,6 +18,7 @@ documentRoutes.get('/',
 
 documentRoutes.get('/:id',
     requirePermission('documents:read'), 
+    conditionalGet(),
     validate(documentParamsSchema),
     DocumentController.getADocument
 );

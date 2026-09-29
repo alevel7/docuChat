@@ -9,6 +9,7 @@ import './events/admin.events';
 import './events/auth.events';
 import './events/document.events';
 import './queues/document.worker';
+import './events/cache.events';
 
 import { authRouter } from "./routes/auth.routes";
 import {documentRoutes} from "./routes/document.routes";

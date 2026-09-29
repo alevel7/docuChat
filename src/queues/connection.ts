@@ -5,3 +5,4 @@ export const redisConnection = new IORedis({
     port: parseInt(process.env.REDIS_PORT || '6379'),
     maxRetriesPerRequest: null, // Required by BullMQ
 });
+

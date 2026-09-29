@@ -1,29 +1,38 @@
 import prisma from "../config/database";
+import { cacheGet, cacheSet, CACHE_TTL, cacheGetOrSet } from "../lib/cache";
 
 
 
 export async function getUserPermissions(userId: string): Promise<Set<string>> {
 
-    // Cached
-    const userRoles = await prisma.userRole.findMany({
-        where: { userId },
-        include: {
-            role: {
+    const cacheKey = `permissions:${userId}`;
+
+    const permissions = await cacheGetOrSet(
+        cacheKey,
+        CACHE_TTL.PERMISSIONS,
+        async () => {
+            const userRoles = await prisma.userRole.findMany({
+                where: { userId },
                 include: {
-                    permissions: {
-                        include: { permission: true },
+                    role: {
+                        include: {
+                            permissions: {
+                                include: { permission: true },
+                            },
+                        },
                     },
                 },
-            },
-        },
-    });
-
-    const permissions = new Set<string>();
-    for (const ur of userRoles) {
-        for (const rp of ur.role.permissions) {
-            permissions.add(rp.permission.name);
+            });
+            const permissions = new Set<string>();
+            for (const ur of userRoles) {
+                for (const rp of ur.role.permissions) {
+                    permissions.add(rp.permission.name);
+                }
+            }
+            return [...permissions]; // Return as array for serialization
         }
-    }
+    );
 
-    return permissions;
+    return new Set(permissions);
+
 }

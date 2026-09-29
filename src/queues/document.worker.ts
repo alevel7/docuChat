@@ -34,21 +34,21 @@ const worker = new Worker(
             await prisma.$transaction(async (tx) => {
 
                 // Delete any existing chunks (in case of retry)
-                await tx.chunk.deleteMany({ where: { documentId } });
+                // await tx.chunk.deleteMany({ where: { documentId } });
 
-                await tx.chunk.createMany({
-                    data: chunks.map((text, index) => ({
-                        documentId,
-                        index,
-                        content: text,
-                        tokenCount: estimateTokens(text),
-                    })),
-                });
+                // await tx.chunk.createMany({
+                //     data: chunks.map((text, index) => ({
+                //         documentId,
+                //         index,
+                //         content: text,
+                //         tokenCount: estimateTokens(text),
+                //     })),
+                // });
 
-                await tx.document.update({
-                    where: { id: documentId },
-                    data: { status: 'ready', chunkCount: chunks.length },
-                });
+                // await tx.document.update({
+                //     where: { id: documentId },
+                //     data: { status: 'ready', chunkCount: chunks.length },
+                // });
             });
             await job.updateProgress(100);
 
