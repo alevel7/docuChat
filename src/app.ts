@@ -15,6 +15,8 @@ import { authRouter } from "./routes/auth.routes";
 import {documentRoutes} from "./routes/document.routes";
 import adminRouter from "./routes/admin";
 import { verifyWebhookSignature } from "./middlewares/verifyWebhook";
+import { apiLimiter, authLimiter, chatLimiter, uploadLimiter } from "./middlewares/rateLimiter.middleware";
+
 
 const secret = process.env.WEBHOOK_SECRET as string;
 
@@ -35,12 +37,12 @@ express.raw({
 
 }));
 
-app.use("/api", userRouter);
-app.use("/api/auth", authRouter);
-app.use('/api/v1/documents', documentRoutes);
+app.use("/api", apiLimiter, userRouter);
+app.use("/api/auth", authLimiter, authRouter);
+app.use('/api/v1/documents', uploadLimiter, documentRoutes);
 app.use('/api/v1/admin', adminRouter);
 app.use('/admin/queues', bullBoardAdapter.getRouter());
-// app.use('/api/v1/conversations', auth, conversationRoutes);
+// app.use('/api/v1/conversations', auth, chatLimiter, conversationRoutes);
 
 app.use(notFoundHandler);
 app.use(errorHandler);

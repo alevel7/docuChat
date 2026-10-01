@@ -1,6 +1,7 @@
 // src/events/auth.events.ts
 import { appEvents } from '../lib/events';
 import prisma from "../config/database"
+import { cacheRedis } from '../lib/cache';
 
 // ── Define the event names as constants ─────────────
 export const AUTH_EVENTS = {
@@ -71,12 +72,24 @@ appEvents.on(AUTH_EVENTS.USER_LOGGED_IN, async (data) => {
 
 // Listener 4: Track failed login attempts
 appEvents.on(AUTH_EVENTS.LOGIN_FAILED, async (data) => {
+
     try {
-        console.warn(
-            `Failed login attempt for ${data.email} from ${data.deviceInfo}`
-        );
-        // In Week 3 we'll add rate limiting based on failed attempts
+        const key = `login-failures:${data.deviceInfo}`;
+        const failures = await cacheRedis.incr(key);
+
+        // Set expiry on first failure
+        if (failures === 1) {
+            await cacheRedis.expire(key, 900);  // 15 minute window
+        }
+
+        if (failures >= 5) {
+            console.warn(
+                `Security: ${failures} failed logins from ${data.deviceInfo} for ${data.email}`
+            );
+            // Could add the IP to a temporary block list here
+        }
     } catch (error) {
-        console.error('Failed to log failed login:', error);
+        console.error('Failed to track login failure:', error);
     }
+    
 });

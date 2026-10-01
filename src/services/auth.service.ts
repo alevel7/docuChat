@@ -12,6 +12,8 @@ import { LoginResponse, TokenPayload } from "../models/auth.models";
 import UserService from "./userService";
 import { CustomException } from "../middlewares/errorHandler";
 import { StatusCodes } from "http-status-codes";
+import { AUTH_EVENTS } from "../events/auth.events";
+import { appEvents } from "../lib/events";
 
 
 export const registerUser = async (data: UserCreateInput): Promise<{ id: string; email: string; tier: string }> => {
@@ -44,6 +46,7 @@ export const login = async (data: {
 
     const valid = await verifyPassword(data.password, user.password);
     if (!valid) {
+        appEvents.emit(AUTH_EVENTS.LOGIN_FAILED, { email: data.email, deviceInfo: data.deviceInfo });
         throw new CustomException('Invalid credentials', StatusCodes.UNAUTHORIZED);
     }
 
