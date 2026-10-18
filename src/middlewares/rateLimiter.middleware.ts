@@ -1,5 +1,5 @@
 // src/middleware/rateLimiter.ts
-import rateLimit from 'express-rate-limit';
+import rateLimit, { ipKeyGenerator } from 'express-rate-limit';
 import RedisStore from 'rate-limit-redis';
 import { cacheRedis } from '../lib/cache';
 import { Request } from 'express';
@@ -28,7 +28,17 @@ function createLimiter(options: {
             },
         },
         keyGenerator: options.keyGenerator ||
-            ((req: Request) => (req as any).user?.id || req.ip || 'anonymous'),
+            ((req: Request) => {
+                // Prefer authenticated user id when available
+                const userId = (req as any).user?.id;
+                if (userId) return String(userId);
+                // Use express-rate-limit's ipKeyGenerator helper with the full request
+                try {
+                    return ipKeyGenerator(req.ip as string) || 'anonymous';
+                } catch {
+                    return 'anonymous';
+                }
+            }),
     });
 }
 
@@ -36,7 +46,14 @@ export const authLimiter = createLimiter({
     windowMs: 15 * 60 * 1000,  // 15 minutes
     max: 10,
     message: 'Too many auth attempts. Please try again later.',
-    keyGenerator: (req) => req.ip || 'anonymous',
+    keyGenerator: (req) => {
+        // Rate-limit auth attempts by IP using the helper to handle IPv6 properly
+        try {
+            return ipKeyGenerator(req.ip as string) || 'anonymous';
+        } catch {
+            return 'anonymous';
+        }
+    },
 });
 
 // General API: tier-based

@@ -19,13 +19,30 @@ import { apiLimiter, authLimiter, chatLimiter, uploadLimiter } from "./middlewar
 import { sanitizeInput } from "./middlewares/sanitize";
 import helmet from 'helmet';
 
+import cors from 'cors';
+import { requestLogger } from "./middlewares/requestLogger";
+import { metricsMiddleware } from "./middlewares/metricsMiddleware";
+import { metricsRegistry } from "./lib/metrics";
+import { healthRoutes } from "./routes/health";
+
+
 
 const secret = process.env.WEBHOOK_SECRET as string;
 
-export const app = express();
+const app = express();
 
 app.use(express.json());
-app.use(sanitizeInput);
+// app.use(sanitizeInput);
+// app.use(requestLogger); 
+app.use(metricsMiddleware);
+  
+// Metrics endpoint (no auth — Prometheus needs to scrape it)
+app.get('/metrics', async (req, res) => {
+  res.set('Content-Type', metricsRegistry.contentType);
+  res.send(await metricsRegistry.metrics());
+});
+
+  
 app.use(helmet({
   contentSecurityPolicy: {
     directives: {
@@ -53,7 +70,7 @@ app.use('/api-docs', helmet({
   },
 }));
 
-import cors from 'cors';
+
 
 const allowedOrigins = [
   process.env.FRONTEND_URL || 'http://localhost:3001',
@@ -78,18 +95,14 @@ app.use(cors({
 
 
 
-app.get("/health", (_request, response) => {
-  response.status(200).json({ status: "ok",timestamp: new Date().toISOString() });
-});
+// app.use('/webhooks', verifyWebhookSignature(secret, "x-signature"), 
+// express.raw({ 
+//   type: 'application/json' ,
+//   verify: (req: any, res, buf) => {
+//     req.rawBody = buf;
+//   },
 
-app.use('/webhooks', verifyWebhookSignature(secret, "x-signature"), 
-express.raw({ 
-  type: 'application/json' ,
-  verify: (req: any, res, buf) => {
-    req.rawBody = buf;
-  },
-
-}));
+// }));
 
 app.use("/api", apiLimiter, userRouter);
 app.use("/api/auth", authLimiter, authRouter);
@@ -98,5 +111,9 @@ app.use('/api/v1/admin', adminRouter);
 app.use('/admin/queues', bullBoardAdapter.getRouter());
 // app.use('/api/v1/conversations', auth, chatLimiter, conversationRoutes);
 
+app.use(healthRoutes);
+
 app.use(notFoundHandler);
 app.use(errorHandler);
+
+export { app };

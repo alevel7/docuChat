@@ -53,7 +53,24 @@ model Document {
   deletedById   String? 
 
   @@index([ownerId])
+  chunks Chunk[]
 }
+
+model Chunk {
+  id         String   @id @default(uuid())
+  documentId String
+  index      Int
+  content    String
+  tokenCount Int
+  // Vector embedding — 1536 dimensions for text-embedding-3-small
+  embedding  Unsupported("vector(1536)")?
+  createdAt  DateTime @default(now())
+
+  document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@index([documentId])
+}
+
 
 model RefreshToken {
   id        Int      @id @default(autoincrement())

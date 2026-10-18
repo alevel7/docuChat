@@ -1,6 +1,8 @@
 import { app } from "./app";
 import { connectDatabase, disconnectDatabase } from "./config/database";
 
+import expressListEndpoints from "express-list-endpoints";
+
 const port = Number(process.env.PORT ?? 3000);
 
 const startServer = async (): Promise<void> => {
@@ -8,6 +10,8 @@ const startServer = async (): Promise<void> => {
 
   const server = app.listen(port, () => {
     console.log(`Server listening on http://localhost:${port}`);
+
+    console.log(expressListEndpoints(app));
   });
 
   const shutdown = async (): Promise<void> => {
